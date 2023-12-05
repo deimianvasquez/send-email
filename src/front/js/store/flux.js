@@ -1,51 +1,72 @@
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
-			message: null,
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
+			users:[],
+			token:null
 		},
 		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
-			},
+			saveUser: async (user) => {
+				const store = getStore()
 
-			getMessage: async () => {
-				try{
-					// fetching data from the backend
-					const resp = await fetch(process.env.BACKEND_URL + "/api/hello")
-					const data = await resp.json()
-					setStore({ message: data.message })
-					// don't forget to return something, that is how the async resolves
-					return data;
-				}catch(error){
-					console.log("Error loading message from backend", error)
+				try {
+					let response = await fetch(`${process.env.BACKEND_URL}/register`, {
+						method: "POST",
+						body: user
+					})
+
+					console.log(response)
+
+				} catch (error) {
+					console.log("error" + error)
 				}
 			},
-			changeColor: (index, color) => {
-				//get the store
-				const store = getStore();
+			login: async (data) => {
+				let store = getStore()
+				try {
+					let response = await fetch(`${process.env.BACKEND_URL}/login`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify(data)
+					})
 
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
+					if (response.ok) {
+						let result = await response.json()
+						console.log(result)
+						setStore({
+							token: result.token
+						})
+						localStorage.setItem("token", result.token)
+					}
+					return response.status
 
-				//reset the global store
-				setStore({ demo: demo });
+				} catch (error) {
+					console.log(error)
+				}
+			},
+			logout: () => {
+				setStore({
+					token: null
+				})
+				localStorage.removeItem("token")
+			},
+			resetPassword: async (email) => {
+				const store = getStore()
+
+				try {
+					let response = await fetch(`${process.env.BACKEND_URL}/reset-password`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify(email)
+					})
+
+					console.log(response)
+				} catch (error) {
+					console.log(error)
+				}
 			}
 		}
 	};
