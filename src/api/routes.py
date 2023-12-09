@@ -4,12 +4,13 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 import os
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User
-from api.utils import generate_sitemap, APIException
+from api.utils import generate_sitemap, APIException, send_email
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 import cloudinary.uploader as uploader
 from base64 import b64encode
+
 
 api = Blueprint('api', __name__)
 
@@ -100,6 +101,18 @@ def handle_login():
 @api.route("/reset-password", methods=["POST"])
 def reset_password():
     body = request.json
+    
+    data = {
+        "subject":body["subject"],
+        "to":body["to"],
+        "message":body["message"]
+    }
+
+    sended_email = send_email(data.get("subject"),data.get("to"), data.get("message"))
+    print("me ejecuto en el endpoint")
+    print(sended_email)
+
+  
 
     return jsonify({"message":"Trabajando en ello"}), 200
 
