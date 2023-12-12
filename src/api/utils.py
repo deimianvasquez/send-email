@@ -60,15 +60,7 @@ def send_email(subject, to, body):
     html = '''
         <html>
         <body>
-        <div>
-        <p>
-        Estás recibiendo este correo porque hiciste una solicitud de recuperación de contraseña para tu cuenta
-        </p>
         ''' + body + '''   
-        <p>
-        Company Deimianland
-        </p>
-        </div>
         </body>
         </html>
     '''

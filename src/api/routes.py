@@ -10,9 +10,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 import cloudinary.uploader as uploader
 from base64 import b64encode
+from datetime import timedelta
 
 
 api = Blueprint('api', __name__)
+
+expires_in_minutes = 2
+expires_delta = timedelta(minutes=expires_in_minutes)
 
 
 def set_password(password, salt):
@@ -101,25 +105,38 @@ def handle_login():
 @api.route("/reset-password", methods=["POST"])
 def reset_password():
     body = request.json
-    
-    data = {
-        "subject":body["subject"],
-        "to":body["to"],
-        "message":body["message"]
-    }
 
-    sended_email = send_email(data.get("subject"),data.get("to"), data.get("message"))
-    print("me ejecuto en el endpoint")
-    print(sended_email)
+    access_token = create_access_token(identity=body, expires_delta=expires_delta)
+    access_token = access_token.replace(".","##")
+
+    message = f"""
+            <p>Link para recuperar la contraseña de el sitio web</p>
+            <a href="https://cuddly-space-dollop-xv9pwq9j7jxh64w7-3000.app.github.dev/actualizar-contrasenia/{access_token}">
+            https://cuddly-space-dollop-xv9pwq9j7jxh64w7-3000.app.github.dev/actualizar-contrasenia/{access_token}
+            </a>
+        """
+
+    data = {
+        "subject": "Recuperación de contraseña",
+        "to":body,
+        "message":message
+    }
+   
+    print(access_token)
+
+    # print(type(access_token))
+    # str(access_token)
+    # print(print(new_token))
+
+    # return {'access_token': access_token}, 200
+
+
+    # sended_email = send_email(data.get("subject"),data.get("to"), data.get("message"))
+   
+    # print(sended_email)
 
   
 
     return jsonify({"message":"Trabajando en ello"}), 200
 
-    # result =email_send("reset password", body, "ingresa a este link para recuperar la contraseña hola https://ominous-yodel-v5p54wg6w2qrg-3000.app.github.dev/")
 
-    # if result == True:
-    #     return jsonify("se envio mensaje"), 200
-    
-    # else:
-    #     return jsonify("fallo mensaje"), 500
