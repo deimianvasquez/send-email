@@ -15,7 +15,7 @@ from datetime import timedelta
 
 api = Blueprint('api', __name__)
 
-expires_in_minutes = 2
+expires_in_minutes = 10
 expires_delta = timedelta(minutes=expires_in_minutes)
 
 
@@ -107,12 +107,11 @@ def reset_password():
     body = request.json
 
     access_token = create_access_token(identity=body, expires_delta=expires_delta)
-    access_token = access_token.replace(".","##")
 
     message = f"""
             <p>Link para recuperar la contraseña de el sitio web</p>
-            <a href="https://cuddly-space-dollop-xv9pwq9j7jxh64w7-3000.app.github.dev/actualizar-contrasenia/{access_token}">
-            https://cuddly-space-dollop-xv9pwq9j7jxh64w7-3000.app.github.dev/actualizar-contrasenia/{access_token}
+            <a href="https://cuddly-space-dollop-xv9pwq9j7jxh64w7-3000.app.github.dev/actualizar-contrasenia?token={access_token}">
+                https://cuddly-space-dollop-xv9pwq9j7jxh64w7-3000.app.github.dev/actualizar-contrasenia?token={access_token}
             </a>
         """
 
@@ -122,21 +121,43 @@ def reset_password():
         "message":message
     }
    
-    print(access_token)
-
-    # print(type(access_token))
-    # str(access_token)
-    # print(print(new_token))
 
     # return {'access_token': access_token}, 200
 
 
-    # sended_email = send_email(data.get("subject"),data.get("to"), data.get("message"))
+    sended_email = send_email(data.get("subject"),data.get("to"), data.get("message"))
    
-    # print(sended_email)
+    print(sended_email)
 
   
 
     return jsonify({"message":"Trabajando en ello"}), 200
 
+
+@api.route("/update-password", methods=["PUT"])
+@jwt_required()
+def update_password():
+    token_user = get_jwt_identity()
+    body = request.json
+
+    user = User.query.filter_by(email=token_user).one_or_none()
+    print(user.serialize())
+    
+    if user is not None:
+        salt = b64encode(os.urandom(32)).decode("utf-8")
+        password = set_password(body, salt)
+
+        user.salt=salt
+        user.password = password
+        print(user.serialize())
+
+        try:
+            db.session.commit()
+            return jsonify("Trodo bien"), 200
+        except Exception as error:
+            print(error)
+            return jsonify("no se puede actualizar el password")
+
+
+    return jsonify("Trabajando en este endpoint"), 201
 

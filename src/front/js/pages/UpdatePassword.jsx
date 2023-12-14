@@ -1,17 +1,29 @@
-import React from "react";
-import { useParams } from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { Context } from "../store/appContext";
+import { useSearchParams } from "react-router-dom";
 
 const UpdatePassword = () => {
-    const { token } = useParams()
 
-    console.log(token)
+    let [searchParams, _] = useSearchParams();
+    const { actions } = useContext(Context)
+
+    const [newPassword, setNewPassword] = useState("")
+
+    const handleSubmit = (event) => {
+        event.preventDefault()
+        let result = actions.updatePassword(searchParams.get("token"), newPassword)
+        // console.log(result)
+    }
+
+
+
     return (
         <>
             <div className="container mt-5">
                 <div className="row justify-content-center">
                     <h2 className="text-center my-3">Actualiza la contraseña</h2>
                     <div className="col-12 col-md-6 border py-4">
-                        <form>
+                        <form onSubmit={handleSubmit}>
                             <div className="form-group mb-3">
                                 <label>password:</label>
                                 <input
@@ -19,8 +31,8 @@ const UpdatePassword = () => {
                                     placeholder="elquefrao@email.com"
                                     className="form-control"
                                     name="email"
-                                // value={user.email}
-                                // onChange={handleChange}
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
                                 />
                             </div>
 

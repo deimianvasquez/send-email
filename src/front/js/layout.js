@@ -32,7 +32,7 @@ const Layout = () => {
                         <Route element={<Register />} path="/register" />
                         <Route element={<Login />} path="/login" />
                         <Route element={<ResetPass />} path="/recuperar-contrasenia" />
-                        <Route element={< UpdatePassword/>} path="/actualizar-contrasenia/:token"/>
+                        <Route element={< UpdatePassword/>} path="/actualizar-contrasenia"/>
                         {/* <Route element={<Single />} path="/single/:theid" /> */}
                         <Route element={<h1>Not found!</h1>} />
                     </Routes>

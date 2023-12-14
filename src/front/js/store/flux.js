@@ -1,8 +1,8 @@
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
-			users:[],
-			token:null
+			users: [],
+			token: null
 		},
 		actions: {
 			saveUser: async (user) => {
@@ -63,6 +63,23 @@ const getState = ({ getStore, getActions, setStore }) => {
 						body: JSON.stringify(email)
 					})
 
+					console.log(response)
+				} catch (error) {
+					console.log(error)
+				}
+			},
+			updatePassword: async (tokenUpdate, newPassword) => {
+				let store = getStore()
+				console.log(tokenUpdate, newPassword)
+				try {
+					let response = await fetch(`${process.env.BACKEND_URL}/update-password`, {
+						method: "PUT",
+						headers: {
+							"Authorization": `Bearer ${tokenUpdate}`,
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify(newPassword)
+					})
 					console.log(response)
 				} catch (error) {
 					console.log(error)
